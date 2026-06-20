@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Admin dashboard page.
+  Backend expected context: admin_stats, recent_requests, lost_reports, and optional chart data.
+-->
+{% block title %}Admin Dashboard | IoT and ICT Lab Inventory{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="admin-hero">
+    <div>
+      <p class="eyebrow">Admin dashboard</p>
+      <h1>Inventory control room</h1>
+      <p class="page-subtitle">Manage lab equipment, borrow flow, reports, and catalog updates from one simple workspace.</p>
+    </div>
+    <div class="admin-hero-card" aria-label="Items needing attention">
+      <span>Needs review</span>
+      <strong>{{ admin_stats.needs_review|default:"18" }}</strong>
+      <small>Requests, stock alerts, and reports</small>
+    </div>
+  </section>
+
+  <section class="admin-menu-grid" aria-label="Admin menu">
+    <a class="admin-menu-card" href="{% url 'item_create' %}">
+      <span class="admin-menu-icon">+</span>
+      <h2>Add item</h2>
+      <p>Register equipment, components, and educational resources.</p>
+    </a>
+    <a class="admin-menu-card" href="{% url 'item_manage' %}">
+      <span class="admin-menu-icon">I</span>
+      <h2>Manage items</h2>
+      <p>Update locations, stock status, asset details, and QR records.</p>
+    </a>
+    <a class="admin-menu-card" href="{% url 'borrow_requests' %}">
+      <span class="admin-menu-icon">B</span>
+      <h2>Borrowing</h2>
+      <p>Review borrow requests, returns, reservations, and accountability.</p>
+    </a>
+    <a class="admin-menu-card" href="{% url 'reports' %}">
+      <span class="admin-menu-icon">R</span>
+      <h2>Reports</h2>
+      <p>Check mismatches, missing items, damaged assets, and audit results.</p>
+    </a>
+    <a class="admin-menu-card" href="{% url 'user_manage' %}">
+      <span class="admin-menu-icon">U</span>
+      <h2>Users</h2>
+      <p>View students, teachers, project teams, and active borrowings.</p>
+    </a>
+  </section>
+
+  <section class="stats-grid" aria-label="Admin statistics">
+    <article class="stat-card">
+      <span class="stat-label">Total assets</span>
+      <strong>{{ admin_stats.total_assets|default:"128" }}</strong>
+      <small>Registered inventory records</small>
+    </article>
+    <article class="stat-card accent-green">
+      <span class="stat-label">Available</span>
+      <strong>{{ admin_stats.available_assets|default:"84" }}</strong>
+      <small>Ready for checkout</small>
+    </article>
+    <article class="stat-card accent-amber">
+      <span class="stat-label">Open requests</span>
+      <strong>{{ admin_stats.open_requests|default:"12" }}</strong>
+      <small>Need admin review</small>
+    </article>
+    <article class="stat-card accent-red">
+      <span class="stat-label">Overdue</span>
+      <strong>{{ admin_stats.overdue_items|default:"3" }}</strong>
+      <small>Require follow-up</small>
+    </article>
+  </section>
+
+  <section class="admin-focus-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Catalog workflow</h2>
+          <p>AI-assisted drafts stay reviewable before database save.</p>
+        </div>
+      </div>
+      <div class="admin-workflow">
+        <div>
+          <span>1</span>
+          <strong>Scan or add</strong>
+          <p>Start from barcode, QR code, or manual item entry.</p>
+        </div>
+        <div>
+          <span>2</span>
+          <strong>Review draft</strong>
+          <p>Check generated name, category, serial, location, and purchase data.</p>
+        </div>
+        <div>
+          <span>3</span>
+          <strong>Save record</strong>
+          <p>Approve the clean item record for tracking and audits.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Operational focus</h2>
+          <p>Quick status across the most important admin tasks.</p>
+        </div>
+      </div>
+      <div class="summary-list compact-list">
+        <div><span>Low stock items</span><strong>{{ admin_stats.low_stock|default:"7" }}</strong></div>
+        <div><span>Missing or damaged</span><strong>{{ admin_stats.problem_assets|default:"4" }}</strong></div>
+        <div><span>Reservations today</span><strong>{{ admin_stats.reservations_today|default:"9" }}</strong></div>
+        <div><span>Audit checks open</span><strong>{{ admin_stats.audit_open|default:"11" }}</strong></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Most borrowed items</h2>
+          <p>Chart.js placeholder for item popularity.</p>
+        </div>
+      </div>
+      <div class="chart-box">
+        <canvas id="adminBorrowedChart" height="140" aria-label="Most borrowed items chart"></canvas>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Recent borrow requests</h2>
+          <p>Newest requests from students and teachers.</p>
+        </div>
+        <a class="text-link" href="{% url 'borrow_requests' %}">View all</a>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Requester</th>
+              <th>Item</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for request_item in recent_requests %}
+              <tr>
+                <td>{{ request_item.requester_name }}</td>
+                <td>{{ request_item.item_name }}</td>
+                <td>{% include "components/status_badge.html" with status=request_item.status %}</td>
+                <td>{{ request_item.created_at|date:"M d, Y" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4">
+                  <div class="empty-state compact">
+                    <h3>No recent requests</h3>
+                    <p>Borrow requests will appear here after students submit forms.</p>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Lost item reports</h2>
+        <p>Latest reports that need staff review.</p>
+      </div>
+      <a class="text-link" href="{% url 'reports' %}">Open reports</a>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Reported by</th>
+            <th>Location</th>
+            <th>Date lost</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for report in lost_reports %}
+            <tr>
+              <td>{{ report.item_name }}</td>
+              <td>{{ report.reported_by }}</td>
+              <td>{{ report.location_lost }}</td>
+              <td>{{ report.date_lost|date:"M d, Y" }}</td>
+              <td>
+                {% with report_status=report.status|default:"Pending" %}
+                  {% include "components/status_badge.html" with status=report_status %}
+                {% endwith %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">
+                <div class="empty-state compact">
+                  <h3>No lost reports</h3>
+                  <p>Submitted lost item reports will appear here.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Backend can set window.dashboardChartData.adminMostBorrowed before this script. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'js/dashboard_charts.js' %}"></script>
+{% endblock %}

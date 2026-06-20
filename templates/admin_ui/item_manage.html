@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Admin item management page.
+  Backend expected context: items = [{id, name, category, serial_number, location, status}], categories = [...]
+-->
+{% block title %}Manage Items | IoT Lab Inventory{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Admin inventory</p>
+      <h1>Manage items</h1>
+      <p class="page-subtitle">Add, edit, and review lab asset records.</p>
+    </div>
+    <a class="btn btn-primary" href="{% url 'item_create' %}">Add item</a>
+  </section>
+
+  <section class="filter-bar" aria-label="Item management filters">
+    <label class="search-field" for="inventory-search">
+      <span class="visually-hidden">Search items</span>
+      <input id="inventory-search" type="search" placeholder="Search name, serial, location">
+    </label>
+
+    <label class="select-field" for="category-filter">
+      <span>Category</span>
+      <select id="category-filter">
+        <option value="">All categories</option>
+        {% for category in categories %}
+          <option value="{{ category }}">{{ category }}</option>
+        {% empty %}
+          <option value="Sensors">Sensors</option>
+          <option value="Microcontrollers">Microcontrollers</option>
+          <option value="Tools">Tools</option>
+          <option value="Kits">Kits</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label class="select-field" for="status-filter">
+      <span>Status</span>
+      <select id="status-filter">
+        <option value="">All statuses</option>
+        <option value="Available">Available</option>
+        <option value="Borrowed">Borrowed</option>
+        <option value="Lost">Lost</option>
+        <option value="Pending">Pending</option>
+      </select>
+    </label>
+  </section>
+
+  <section class="panel">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Category</th>
+            <th>Serial</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th class="table-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr data-inventory-card data-name="{{ item.name }}" data-category="{{ item.category }}" data-status="{{ item.status }}" data-location="{{ item.location }}" data-serial="{{ item.serial_number }}">
+              <td>{{ item.name }}</td>
+              <td>{{ item.category }}</td>
+              <td>{{ item.serial_number }}</td>
+              <td>{{ item.location }}</td>
+              <td>{% include "components/status_badge.html" with status=item.status %}</td>
+              <td class="table-actions">
+                <a class="btn btn-outline btn-small" href="{% url 'item_edit' item.id %}">Edit</a>
+                <button class="btn btn-danger btn-small" type="button" disabled>Delete</button>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">
+                <div class="empty-state compact">
+                  <h3>No items yet</h3>
+                  <p>Add the first inventory record when backend storage is ready.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="empty-state inventory-empty" id="inventory-filter-empty" hidden>
+    <h2>No matching records</h2>
+    <p>Try another search term, category, or status.</p>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/inventory_filter.js' %}"></script>
+{% endblock %}

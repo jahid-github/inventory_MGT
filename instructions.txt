@@ -1,0 +1,23 @@
+What kinds of tasks do you think the inventory system could be useful helping with? * The inventory system should help with the efficient management, tracking, and utilization of laboratory equipment, components, and educational resources.
+Possible tasks may include:
+Tracking the quantity and availability of electronic components, sensors, actuators, tools, and devices, etc
+Managing the borrowing and return of equipment by students, teachers, and project teams.
+Monitoring stock levels and identifying when supplies need replenishment.
+Recording the location of devices and equipment within storage areas.
+Tracking the usage history of equipment and components.
+Managing asset information such as serial numbers and purchase dates.
+Showing what equipment is currently available.
+Generate reports on inventory status, usage statistics, and missing items.
+Managing reservations for equipment needed in courses, workshops, and student projects.
+Identifying damaged, lost, or obsolete equipment.
+Using barcode or QR-code scanning for faster inventory updates.
+Providing a mobile-friendly interface for adding, checking, and updating inventory directly from a phone or tablet.
+Helping ensure accountability when expensive equipment is assigned to students or project groups.
+Supporting annual inventory audits and asset verification processes. Item search features Viewing item details (such as location in storage)
+Item stock display (available/borrowed/missing)
+Item borrowing history
+Reporting inventory mismatches
+QR-code scanning to view an item on the web app
+Administrative tools (adding/editing/removing items from database) PC interface Mobile interface
+
+AIgenerated information before saving it to the database. This would make it much faster to catalog

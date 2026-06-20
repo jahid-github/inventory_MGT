@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Register page.
+  Backend expected context: form and messages. Backend should validate student_id uniqueness.
+-->
+{% block title %}Register | IoT and ICT Lab {% endblock %}
+{% block body_class %}auth-body{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+  <style>
+    .register-auth-layout {
+      grid-template-columns: minmax(300px, 0.85fr) minmax(420px, 1.15fr);
+    }
+
+    .register-auth-card {
+      width: min(100%, 560px);
+      padding: 30px;
+    }
+
+    .hamk-logo-frame {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+    }
+
+    .hamk-brand-logo {
+      display: block;
+      width: 210px;
+      max-width: 58vw;
+      height: auto;
+    }
+
+    .register-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .register-span-2 {
+      grid-column: 1 / -1;
+    }
+
+    .register-password-group {
+      display: grid;
+      gap: 12px;
+    }
+
+    .register-password-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .password-advisor {
+      display: grid;
+      gap: 10px;
+      padding: 13px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface-strong);
+    }
+
+    .password-strength-copy {
+      display: grid;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .password-strength-label {
+      color: var(--color-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .password-strength-status {
+      color: var(--color-text);
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .password-meter {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--color-border);
+    }
+
+    .password-meter-fill {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--color-red);
+      transition: width var(--transition), background var(--transition);
+    }
+
+    .password-suggestion {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .password-requirements {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--color-muted);
+      font-size: 12px;
+    }
+
+    .password-requirements li::before {
+      content: "-";
+      display: inline-flex;
+      width: 16px;
+      color: var(--color-red);
+      font-weight: 800;
+    }
+
+    .password-requirements li.is-met {
+      color: var(--color-green);
+      font-weight: 700;
+    }
+
+    .password-requirements li.is-met::before {
+      content: "+";
+    }
+
+    .password-advisor.is-strong .password-suggestion {
+      color: var(--color-green);
+      font-weight: 700;
+    }
+
+    .password-match-message {
+      display: none;
+      color: var(--color-red);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .password-match-message.is-visible {
+      display: block;
+    }
+
+    @media (max-width: 860px) {
+      .register-auth-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .register-auth-card {
+        padding: 22px;
+      }
+
+      .hamk-brand-logo {
+        width: 176px;
+      }
+
+      .register-grid,
+      .register-password-fields,
+      .password-requirements {
+        grid-template-columns: 1fr;
+      }
+
+    }
+  </style>
+{% endblock %}
+
+{% block layout %}
+  <main class="auth-layout register-auth-layout">
+    <section class="auth-brand-panel" aria-label="Project introduction">
+      <div class="auth-brand-content">
+        <span class="hamk-logo-frame">
+          <img class="hamk-brand-logo" src="{% static 'images/hamk_logo.png' %}" alt="HAMK">
+        </span>
+        <h1>Join the IoT and ICT Lab</h1>
+        <p>Create a student account to reserve lab equipment and track your borrowings.</p>
+      </div>
+    </section>
+
+    <section class="auth-card-wrap" aria-label="Registration form">
+      <div class="auth-card register-auth-card">
+        {% include "components/alert_messages.html" %}
+
+        <div class="auth-card-header">
+          <p class="eyebrow">Student access</p>
+          <h2>Create account</h2>
+        </div>
+
+        <form class="form-stack" method="post" action="{% url 'register' %}" data-loading-form>
+          {% csrf_token %}
+
+          <div class="register-grid">
+            <label class="form-field register-span-2" for="id_full_name">
+              <span>Full name</span>
+              <input id="id_full_name" name="full_name" type="text" autocomplete="name" required placeholder="Your full name">
+            </label>
+
+            <label class="form-field register-span-2" for="id_email">
+              <span>Email</span>
+              <input id="id_email" name="email" type="email" autocomplete="email" required placeholder="user@student.hamk.fi">
+            </label>
+
+            <div class="register-password-group register-span-2">
+              <div class="register-password-fields">
+                <label class="form-field" for="id_password1">
+                  <span>Password</span>
+                  <input id="id_password1" name="password1" type="password" autocomplete="new-password" required placeholder="Create password">
+                </label>
+
+                <label class="form-field" for="id_password2">
+                  <span>Confirm password</span>
+                  <input id="id_password2" name="password2" type="password" autocomplete="new-password" required placeholder="Repeat password">
+                  <small class="password-match-message" id="password-match-message">Passwords do not match.</small>
+                </label>
+              </div>
+
+              <div class="password-advisor" id="password-advisor" aria-live="polite">
+                <div class="password-strength-copy">
+                  <span class="password-strength-label">Password strength</span>
+                  <strong class="password-strength-status" id="password-strength-status">Start typing</strong>
+                </div>
+
+                <div class="password-meter" aria-hidden="true">
+                  <span class="password-meter-fill" id="password-meter-fill"></span>
+                </div>
+
+                <p class="password-suggestion" id="password-suggestion">Use at least 8 characters with mixed case, a number, and a symbol.</p>
+
+                <ul class="password-requirements" aria-label="Password requirements">
+                  <li data-rule="length">8+ characters</li>
+                  <li data-rule="case">Upper and lower case</li>
+                  <li data-rule="number">One number</li>
+                  <li data-rule="symbol">One symbol</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-full" type="submit" data-loading-text="Creating account...">Create account</button>
+        </form>
+
+        <p class="auth-switch">Already registered? <a href="{% url 'login' %}">Sign in</a></p>
+      </div>
+    </section>
+  </main>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (() => {
+      const passwordInput = document.getElementById("id_password1");
+      const confirmInput = document.getElementById("id_password2");
+      const advisor = document.getElementById("password-advisor");
+      const status = document.getElementById("password-strength-status");
+      const meter = document.getElementById("password-meter-fill");
+      const suggestion = document.getElementById("password-suggestion");
+      const matchMessage = document.getElementById("password-match-message");
+      const ruleItems = Array.from(document.querySelectorAll(".password-requirements [data-rule]"));
+
+      if (!passwordInput || !confirmInput || !advisor || !status || !meter || !suggestion || !matchMessage) {
+        return;
+      }
+
+      const rules = {
+        length: (value) => value.length >= 8,
+        case: (value) => /[a-z]/.test(value) && /[A-Z]/.test(value),
+        number: (value) => /\d/.test(value),
+        symbol: (value) => /[^A-Za-z0-9]/.test(value),
+      };
+
+      const strengthSteps = [
+        {
+          label: "Start typing",
+          width: "0%",
+          color: "var(--color-border)",
+          tip: "Use at least 8 characters with mixed case, a number, and a symbol.",
+        },
+        {
+          label: "Weak",
+          width: "25%",
+          color: "var(--color-red)",
+          tip: "Add more characters and mix uppercase, lowercase, numbers, and symbols.",
+        },
+        {
+          label: "Fair",
+          width: "50%",
+          color: "var(--color-amber)",
+          tip: "Add one more missing requirement to make this password stronger.",
+        },
+        {
+          label: "Good",
+          width: "75%",
+          color: "var(--color-primary)",
+          tip: "Almost there. Add the last missing requirement for a strong password.",
+        },
+        {
+          label: "Strong",
+          width: "100%",
+          color: "var(--color-green)",
+          tip: "Strong password.",
+        },
+      ];
+
+      const getStrengthScore = (value) => {
+        if (!value) {
+          return 0;
+        }
+
+        return Object.values(rules).reduce((score, check) => score + (check(value) ? 1 : 0), 0);
+      };
+
+      const updateAdvisor = () => {
+        const value = passwordInput.value;
+        const score = getStrengthScore(value);
+        const step = strengthSteps[score];
+
+        status.textContent = step.label;
+        suggestion.textContent = step.tip;
+        suggestion.style.color = step.color;
+        suggestion.style.fontWeight = score > 0 ? "700" : "400";
+        meter.style.width = step.width;
+        meter.style.background = step.color;
+        advisor.classList.toggle("is-strong", score === 4);
+        passwordInput.setAttribute("aria-invalid", value && score < 4 ? "true" : "false");
+
+        ruleItems.forEach((item) => {
+          const ruleName = item.dataset.rule;
+          item.classList.toggle("is-met", rules[ruleName](value));
+        });
+      };
+
+      const updatePasswordMatch = () => {
+        const hasConfirmation = confirmInput.value.length > 0;
+        const isMismatch = hasConfirmation && passwordInput.value !== confirmInput.value;
+
+        matchMessage.classList.toggle("is-visible", isMismatch);
+        confirmInput.setAttribute("aria-invalid", isMismatch ? "true" : "false");
+      };
+
+      passwordInput.addEventListener("input", updateAdvisor);
+      passwordInput.addEventListener("input", updatePasswordMatch);
+      confirmInput.addEventListener("input", updatePasswordMatch);
+
+      updateAdvisor();
+      updatePasswordMatch();
+    })();
+  </script>
+{% endblock %}

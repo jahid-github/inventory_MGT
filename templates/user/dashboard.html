@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Student dashboard page.
+  Backend expected context: stats = {total_items, available_items, borrowed_items, pending_requests}, recent_activities = [...]
+-->
+{% block title %}Dashboard | IoT Lab Inventory{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Student dashboard</p>
+      <h1>Lab overview</h1>
+      <p class="page-subtitle">Track inventory availability, requests, and your recent lab activity.</p>
+    </div>
+    <div class="quick-actions">
+      <a class="btn btn-primary" href="{% url 'inventory_list' %}">Browse inventory</a>
+      <a class="btn btn-secondary" href="{% url 'borrow_request' %}">Request borrow</a>
+      <a class="btn btn-outline" href="{% url 'lost_report' %}">Report lost item</a>
+    </div>
+  </section>
+
+  <section class="stats-grid" aria-label="Inventory statistics">
+    <article class="stat-card">
+      <span class="stat-label">Total items</span>
+      <strong>{{ stats.total_items|default:"128" }}</strong>
+      <small>All registered lab assets</small>
+    </article>
+    <article class="stat-card accent-green">
+      <span class="stat-label">Available items</span>
+      <strong>{{ stats.available_items|default:"84" }}</strong>
+      <small>Ready for borrowing</small>
+    </article>
+    <article class="stat-card accent-amber">
+      <span class="stat-label">Borrowed items</span>
+      <strong>{{ stats.borrowed_items|default:"31" }}</strong>
+      <small>Currently checked out</small>
+    </article>
+    <article class="stat-card accent-blue">
+      <span class="stat-label">Pending requests</span>
+      <strong>{{ stats.pending_requests|default:"7" }}</strong>
+      <small>Waiting for approval</small>
+    </article>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Borrowed items by month</h2>
+          <p>Chart.js demo data until backend injects real monthly counts.</p>
+        </div>
+      </div>
+      <div class="chart-box">
+        <canvas id="borrowedTrendChart" height="140" aria-label="Borrowed items by month chart"></canvas>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Recent activity</h2>
+          <p>Latest borrowing, reservation, and report events.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Activity</th>
+              <th>Item</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for activity in recent_activities %}
+              <tr>
+                <td>{{ activity.title }}</td>
+                <td>{{ activity.item_name }}</td>
+                <td>{% include "components/status_badge.html" with status=activity.status %}</td>
+                <td>{{ activity.created_at|date:"M d, Y" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4">
+                  <div class="empty-state compact">
+                    <h3>No recent activity</h3>
+                    <p>Your borrow requests and reservations will appear here.</p>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Backend can inject window.dashboardChartData before this file if real chart data is available. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'js/dashboard_charts.js' %}"></script>
+{% endblock %}

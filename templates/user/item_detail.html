@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Item detail page.
+  Backend expected context: item = {id, name, serial_number, category, location, status, description, image_url}, borrowing_history = [...]
+-->
+{% block title %}{{ item.name|default:"Item Detail" }} | IoT Lab Inventory{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="detail-layout">
+    <article class="detail-media panel">
+      <img src="{% if item.image_url %}{{ item.image_url }}{% else %}{% static 'images/placeholder-item.png' %}{% endif %}" alt="{{ item.name|default:'Lab item' }}">
+      <div class="qr-box" data-qr-scanner>
+        <div>
+          <strong>QR code area</strong>
+          <p>Backend can render the item QR image or connect scanner support here.</p>
+        </div>
+        <button class="btn btn-outline btn-small" type="button" data-qr-start>Scan placeholder</button>
+      </div>
+    </article>
+
+    <article class="detail-info panel">
+      <div class="detail-heading">
+        <div>
+          <p class="eyebrow">Item detail</p>
+          <h1>{{ item.name|default:"Arduino Sensor Kit" }}</h1>
+        </div>
+        {% with current_status=item.status|default:"Available" %}
+          {% include "components/status_badge.html" with status=current_status %}
+        {% endwith %}
+      </div>
+
+      <dl class="detail-list">
+        <div><dt>Serial number</dt><dd>{{ item.serial_number|default:"IOT-SN-0001" }}</dd></div>
+        <div><dt>Category</dt><dd>{{ item.category|default:"Sensors" }}</dd></div>
+        <div><dt>Location</dt><dd>{{ item.location|default:"IoT Lab Shelf A2" }}</dd></div>
+        <div><dt>Status</dt><dd>{{ item.status|default:"Available" }}</dd></div>
+      </dl>
+
+      <div class="description-block">
+        <h2>Description</h2>
+        <p>{{ item.description|default:"A reusable IoT lab item. Backend can replace this placeholder with the item description from PostgreSQL." }}</p>
+      </div>
+
+      <div class="detail-actions">
+        {% if item.status == "Available" or not item.status %}
+          <a class="btn btn-primary" href="{% url 'borrow_request' %}{% if item.id %}?item={{ item.id }}{% endif %}">Borrow or reserve</a>
+        {% else %}
+          <button class="btn btn-secondary" type="button" disabled>Currently unavailable</button>
+        {% endif %}
+        <a class="btn btn-outline" href="{% url 'inventory_list' %}">Back to inventory</a>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Borrowing history</h2>
+        <p>Placeholder table for previous borrowers and return records.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Borrower</th>
+            <th>Borrowed on</th>
+            <th>Returned on</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in borrowing_history %}
+            <tr>
+              <td>{{ record.borrower_name }}</td>
+              <td>{{ record.borrowed_at|date:"M d, Y" }}</td>
+              <td>{{ record.returned_at|date:"M d, Y"|default:"Not returned" }}</td>
+              <td>{% include "components/status_badge.html" with status=record.status %}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4">
+                <div class="empty-state compact">
+                  <h3>No history yet</h3>
+                  <p>This item has no borrowing history in the frontend context.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/qr_scanner.js' %}"></script>
+{% endblock %}

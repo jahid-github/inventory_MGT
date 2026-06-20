@@ -1,0 +1,1 @@
+#This file is required to make the frontend folder a Python package, allowing Django to recognize and use the files within it.

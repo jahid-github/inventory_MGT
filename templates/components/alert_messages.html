@@ -1,0 +1,13 @@
+<!--
+  Django messages placeholder.
+  Backend expected context: messages from django.contrib.messages.
+-->
+{% if messages %}
+  <section class="message-stack" aria-label="System messages">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </section>
+{% endif %}

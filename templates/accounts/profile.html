@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  User profile page.
+  Backend expected context: user = request.user.
+-->
+{% block title %}Profile | IoT and ICT Lab Inventory{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Account</p>
+      <h1>Profile</h1>
+      <p class="page-subtitle">Review the personal information connected to your lab account.</p>
+    </div>
+  </section>
+
+  <section class="profile-shell">
+    <article class="panel profile-detail-panel">
+      <div class="panel-header">
+        <h2>Personal Information</h2>
+      </div>
+      <div class="profile-detail-list">
+        <div>
+          <span>Name</span>
+          <strong>
+            {% if user.get_full_name %}
+              {{ user.get_full_name }}
+            {% else %}
+              {{ user.username|default:"Student User" }}
+            {% endif %}
+          </strong>
+        </div>
+        <div>
+          <span>Email</span>
+          <strong>{{ user.email|default:"student@university.edu" }}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel profile-detail-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Security</h2>
+          <p>Manage password access for your account.</p>
+        </div>
+      </div>
+      <form class="form-stack" method="post" action="" data-loading-form>
+        {% csrf_token %}
+        <div class="form-grid">
+          <label class="form-field span-2" for="current_password">
+            <span>Current password</span>
+            <input id="current_password" name="current_password" type="password" autocomplete="current-password" placeholder="Enter current password">
+          </label>
+
+          <label class="form-field" for="new_password">
+            <span>New password</span>
+            <input id="new_password" name="new_password" type="password" autocomplete="new-password" placeholder="Type new password">
+          </label>
+
+          <label class="form-field" for="confirm_new_password">
+            <span>Type new password again</span>
+            <input id="confirm_new_password" name="confirm_new_password" type="password" autocomplete="new-password" placeholder="Repeat new password">
+            <small class="password-match-message" id="profile-password-match-message">Passwords do not match.</small>
+          </label>
+        </div>
+
+        <div class="password-advisor" id="profile-password-advisor" aria-live="polite">
+          <div class="password-strength-copy">
+            <span class="password-strength-label">Password strength</span>
+            <strong class="password-strength-status" id="profile-password-strength-status">Start typing</strong>
+          </div>
+
+          <div class="password-meter" aria-hidden="true">
+            <span class="password-meter-fill" id="profile-password-meter-fill"></span>
+          </div>
+
+          <p class="password-suggestion" id="profile-password-suggestion">Use at least 8 characters with mixed case, a number, and a symbol.</p>
+
+          <ul class="password-requirements" aria-label="Password requirements">
+            <li data-rule="length">8+ characters</li>
+            <li data-rule="case">Upper and lower case</li>
+            <li data-rule="number">One number</li>
+            <li data-rule="symbol">One symbol</li>
+          </ul>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" name="action" value="change_password">Save changes</button>
+        </div>
+      </form>
+    </article>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (() => {
+      const passwordInput = document.getElementById("new_password");
+      const confirmInput = document.getElementById("confirm_new_password");
+      const advisor = document.getElementById("profile-password-advisor");
+      const status = document.getElementById("profile-password-strength-status");
+      const meter = document.getElementById("profile-password-meter-fill");
+      const suggestion = document.getElementById("profile-password-suggestion");
+      const matchMessage = document.getElementById("profile-password-match-message");
+      const ruleItems = Array.from(document.querySelectorAll("#profile-password-advisor [data-rule]"));
+
+      if (!passwordInput || !confirmInput || !advisor || !status || !meter || !suggestion || !matchMessage) {
+        return;
+      }
+
+      const rules = {
+        length: (value) => value.length >= 8,
+        case: (value) => /[a-z]/.test(value) && /[A-Z]/.test(value),
+        number: (value) => /\d/.test(value),
+        symbol: (value) => /[^A-Za-z0-9]/.test(value),
+      };
+
+      const strengthSteps = [
+        {
+          label: "Start typing",
+          width: "0%",
+          color: "var(--color-border)",
+          tip: "Use at least 8 characters with mixed case, a number, and a symbol.",
+        },
+        {
+          label: "Weak",
+          width: "25%",
+          color: "var(--color-red)",
+          tip: "Add more characters and mix uppercase, lowercase, numbers, and symbols.",
+        },
+        {
+          label: "Fair",
+          width: "50%",
+          color: "var(--color-amber)",
+          tip: "Add one more missing requirement to make this password stronger.",
+        },
+        {
+          label: "Good",
+          width: "75%",
+          color: "var(--color-primary)",
+          tip: "Almost there. Add the last missing requirement for a strong password.",
+        },
+        {
+          label: "Strong",
+          width: "100%",
+          color: "var(--color-green)",
+          tip: "Strong password.",
+        },
+      ];
+
+      const getStrengthScore = (value) => {
+        if (!value) {
+          return 0;
+        }
+
+        return Object.values(rules).reduce((score, check) => score + (check(value) ? 1 : 0), 0);
+      };
+
+      const updateAdvisor = () => {
+        const value = passwordInput.value;
+        const score = getStrengthScore(value);
+        const step = strengthSteps[score];
+
+        status.textContent = step.label;
+        suggestion.textContent = step.tip;
+        suggestion.style.color = step.color;
+        suggestion.style.fontWeight = score > 0 ? "700" : "400";
+        meter.style.width = step.width;
+        meter.style.background = step.color;
+        advisor.classList.toggle("is-strong", score === 4);
+        passwordInput.setAttribute("aria-invalid", value.length > 0 && score < 4 ? "true" : "false");
+
+        ruleItems.forEach((item) => {
+          const ruleName = item.dataset.rule;
+          item.classList.toggle("is-met", rules[ruleName](value));
+        });
+      };
+
+      const updatePasswordMatch = () => {
+        const hasConfirmation = confirmInput.value.length > 0;
+        const isMismatch = hasConfirmation && passwordInput.value !== confirmInput.value;
+
+        matchMessage.classList.toggle("is-visible", isMismatch);
+        confirmInput.setAttribute("aria-invalid", isMismatch ? "true" : "false");
+      };
+
+      passwordInput.addEventListener("input", updateAdvisor);
+      passwordInput.addEventListener("input", updatePasswordMatch);
+      confirmInput.addEventListener("input", updatePasswordMatch);
+
+      updateAdvisor();
+      updatePasswordMatch();
+    })();
+  </script>
+{% endblock %}

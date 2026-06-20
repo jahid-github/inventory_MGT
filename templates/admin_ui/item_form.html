@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Add/edit item form.
+  Backend expected context: form, item for edit mode, categories/status choices from Django form if available.
+-->
+{% block title %}Item Form | IoT Lab Inventory{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Admin inventory</p>
+      <h1>{% if item %}Edit item{% else %}Add item{% endif %}</h1>
+      <p class="page-subtitle">Keep item records clear so students can find the right equipment.</p>
+    </div>
+  </section>
+
+  <section class="form-panel panel">
+    <form class="form-grid" method="post" action="" enctype="multipart/form-data" data-loading-form>
+      {% csrf_token %}
+
+      <label class="form-field" for="id_name">
+        <span>Item name</span>
+        <input id="id_name" name="name" type="text" value="{{ item.name|default:'' }}" required placeholder="Arduino Uno R4 WiFi">
+      </label>
+
+      <label class="form-field" for="id_category">
+        <span>Category</span>
+        <select id="id_category" name="category" required>
+          <option value="">Select category</option>
+          <option value="Sensors">Sensors</option>
+          <option value="Microcontrollers">Microcontrollers</option>
+          <option value="Tools">Tools</option>
+          <option value="Kits">Kits</option>
+          <option value="Networking">Networking</option>
+        </select>
+      </label>
+
+      <label class="form-field" for="id_serial_number">
+        <span>Serial number</span>
+        <input id="id_serial_number" name="serial_number" type="text" value="{{ item.serial_number|default:'' }}" required placeholder="IOT-MCU-0042">
+      </label>
+
+      <label class="form-field" for="id_location">
+        <span>Location</span>
+        <input id="id_location" name="location" type="text" value="{{ item.location|default:'' }}" required placeholder="Shelf B3">
+      </label>
+
+      <label class="form-field" for="id_status">
+        <span>Status</span>
+        <select id="id_status" name="status" required>
+          <option value="Available">Available</option>
+          <option value="Borrowed">Borrowed</option>
+          <option value="Lost">Lost</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </label>
+
+      <label class="form-field" for="id_image">
+        <span>Image upload</span>
+        <input id="id_image" name="image" type="file" accept="image/*">
+      </label>
+
+      <label class="form-field span-2" for="id_description">
+        <span>Description</span>
+        <textarea id="id_description" name="description" rows="5" placeholder="Short practical description for students.">{{ item.description|default:'' }}</textarea>
+      </label>
+
+      <div class="form-actions span-2">
+        <a class="btn btn-outline" href="{% url 'item_manage' %}">Cancel</a>
+        <button class="btn btn-primary" type="submit" data-loading-text="Saving item...">Save item</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

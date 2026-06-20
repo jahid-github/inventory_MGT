@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Admin reports page.
+  Backend expected context: lost_reports = [...], overdue_items = [...]. Export action can be wired to CSV/PDF later.
+-->
+{% block title %}Reports | IoT Lab Inventory{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Reports</p>
+      <h1>Lost and overdue items</h1>
+      <p class="page-subtitle">Operational reports for lab staff follow-up.</p>
+    </div>
+    <div class="quick-actions" aria-label="Export report options">
+      <a class="btn btn-secondary" href="?export=pdf">Export PDF</a>
+      <a class="btn btn-outline" href="?export=xlsx">Export Excel</a>
+    </div>
+  </section>
+
+  <section class="reports-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Lost items</h2>
+          <p>Reports submitted by borrowers.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Reported by</th>
+              <th>Location</th>
+              <th>Date lost</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for report in lost_reports %}
+              <tr>
+                <td>{{ report.item_name }}</td>
+                <td>{{ report.reported_by }}</td>
+                <td>{{ report.location_lost }}</td>
+                <td>{{ report.date_lost|date:"M d, Y" }}</td>
+                <td>
+                  {% with report_status=report.status|default:"Pending" %}
+                    {% include "components/status_badge.html" with status=report_status %}
+                  {% endwith %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state compact">
+                    <h3>No lost items</h3>
+                    <p>Lost item reports will appear here.</p>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Overdue items</h2>
+          <p>Borrowed items past expected return date.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Borrower</th>
+              <th>Return date</th>
+              <th>Days late</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for overdue in overdue_items %}
+              <tr>
+                <td>{{ overdue.item_name }}</td>
+                <td>{{ overdue.borrower_name }}</td>
+                <td>{{ overdue.expected_return_date|date:"M d, Y" }}</td>
+                <td>{{ overdue.days_late }}</td>
+                <td>{% include "components/status_badge.html" with status="Overdue" %}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state compact">
+                    <h3>No overdue items</h3>
+                    <p>Overdue borrowings will appear here when return dates pass.</p>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+{% endblock %}

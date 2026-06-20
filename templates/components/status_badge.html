@@ -1,0 +1,7 @@
+<!--
+  Reusable status badge component.
+  Backend expected context: status = Available, Borrowed, Lost, Pending, Approved, Rejected, Cancelled, or Overdue.
+-->
+{% with badge_status=status|default:"Pending" %}
+  <span class="status-badge status-{{ badge_status|lower }}">{{ badge_status }}</span>
+{% endwith %}

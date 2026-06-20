@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Lost item report form.
+  Backend expected context: form, borrowed_items = items currently assigned to the user.
+-->
+{% block title %}Report Lost Item | IoT Lab Inventory{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Safety and accountability</p>
+      <h1>Report a lost item</h1>
+      <p class="page-subtitle">Notify lab staff early so the item can be tracked or replaced.</p>
+    </div>
+  </section>
+
+  <section class="form-panel panel">
+    <form class="form-grid" method="post" action="{% url 'lost_report' %}" data-loading-form>
+      {% csrf_token %}
+
+      <label class="form-field span-2" for="id_lost_item">
+        <span>Item</span>
+        <select id="id_lost_item" name="item" required>
+          <option value="">Select item</option>
+          {% for item in borrowed_items %}
+            <option value="{{ item.id }}">{{ item.name }} - {{ item.serial_number }}</option>
+          {% empty %}
+            <option value="" disabled>No borrowed items loaded yet</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="form-field" for="id_date_lost">
+        <span>Date lost</span>
+        <input id="id_date_lost" name="date_lost" type="date" required>
+      </label>
+
+      <label class="form-field" for="id_location_lost">
+        <span>Location lost</span>
+        <input id="id_location_lost" name="location_lost" type="text" required placeholder="Example: Robotics lab bench 3">
+      </label>
+
+      <label class="form-field span-2" for="id_description">
+        <span>Description</span>
+        <textarea id="id_description" name="description" rows="5" required placeholder="Explain when and where you last used the item."></textarea>
+      </label>
+
+      <div class="form-actions span-2">
+        <a class="btn btn-outline" href="{% url 'my_borrowings' %}">Cancel</a>
+        <button class="btn btn-primary" type="submit" data-loading-text="Submitting report...">Submit lost report</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

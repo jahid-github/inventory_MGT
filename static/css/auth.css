@@ -1,0 +1,120 @@
+/*
+  Authentication page styles.
+  Backend note: form error blocks can be inserted above matching fields without changing layout classes.
+*/
+
+.auth-body {
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.12), transparent 34%),
+    linear-gradient(315deg, rgba(15, 118, 110, 0.12), transparent 30%),
+    var(--color-bg);
+}
+
+.auth-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.05fr);
+}
+
+.auth-layout.compact-auth {
+  grid-template-columns: 1fr;
+  place-items: center;
+  padding: 24px;
+}
+
+.auth-brand-panel {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 56px;
+  color: #ffffff;
+  background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.9), rgba(37, 99, 235, 0.88)),
+    #123047;
+}
+
+.auth-brand-content {
+  max-width: 520px;
+}
+
+.auth-brand-content h1 {
+  margin: 18px 0 12px;
+  font-size: 44px;
+  line-height: 1.08;
+}
+
+.auth-brand-content p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 18px;
+}
+
+.auth-card-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.auth-card-wrap.centered {
+  width: min(100%, 500px);
+}
+
+.auth-card {
+  width: min(100%, 460px);
+  padding: 28px;
+}
+
+.auth-card-header {
+  margin-bottom: 22px;
+}
+
+.auth-card-header h2 {
+  font-size: 28px;
+}
+
+.auth-card-header .muted-text {
+  margin: 8px 0 0;
+}
+
+.auth-switch {
+  margin: 18px 0 0;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.auth-switch a {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.auth-card .message-stack {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+@media (max-width: 860px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-brand-panel {
+    min-height: auto;
+    padding: 34px 24px;
+  }
+
+  .auth-brand-content h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 520px) {
+  .auth-card-wrap {
+    padding: 22px 16px;
+  }
+
+  .auth-card {
+    padding: 22px;
+  }
+}

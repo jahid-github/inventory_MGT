@@ -1,0 +1,40 @@
+{% load static %}
+<!--
+  Base layout for the IoT Lab Inventory Management System frontend.
+  Backend expected context: request.user, messages, and optional page-specific variables.
+-->
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="IoT Lab Inventory Management System">
+  <title>{% block title %}IoT Lab Inventory{% endblock %}</title>
+
+  <!-- Global frontend styles. Backend can keep these under STATICFILES_DIRS. -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}app-body{% endblock %}">
+  {% block layout %}
+    <div class="app-layout">
+      {% include "components/sidebar.html" %}
+
+      <div class="app-main">
+        {% include "components/navbar.html" %}
+        {% include "components/alert_messages.html" %}
+
+        <main class="page-content" id="main-content">
+          {% block content %}{% endblock %}
+        </main>
+
+        {% include "components/footer.html" %}
+      </div>
+    </div>
+  {% endblock %}
+
+  <!-- Global interactions: mobile sidebar, dark mode, dropdowns, loading buttons. -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  My borrowings page.
+  Backend expected context: borrowings = [{item_name, borrowed_at, expected_return_date, status, is_overdue, id}].
+-->
+{% block title %}My Borrowings | IoT Lab Inventory{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Borrowings</p>
+      <h1>My borrowed items</h1>
+      <p class="page-subtitle">Track current items and expected return dates.</p>
+    </div>
+    <a class="btn btn-primary" href="{% url 'borrow_request' %}">Request another item</a>
+  </section>
+
+  <section class="panel">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Borrowed</th>
+            <th>Return date</th>
+            <th>Status</th>
+            <th class="table-actions">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for borrowing in borrowings %}
+            <tr>
+              <td>{{ borrowing.item_name }}</td>
+              <td>{{ borrowing.borrowed_at|date:"M d, Y" }}</td>
+              <td>
+                {{ borrowing.expected_return_date|date:"M d, Y" }}
+                {% if borrowing.is_overdue %}
+                  {% include "components/status_badge.html" with status="Overdue" %}
+                {% endif %}
+              </td>
+              <td>{% include "components/status_badge.html" with status=borrowing.status %}</td>
+              <td class="table-actions">
+                <button class="btn btn-outline btn-small" type="button" disabled>Return request</button>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">
+                <div class="empty-state compact">
+                  <h3>No borrowed items</h3>
+                  <p>Approved borrowings will appear here after checkout.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

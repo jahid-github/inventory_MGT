@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Admin borrow request review page.
+  Backend expected context: requests = [{id, requester_name, item_name, borrow_date, expected_return_date, reason, status}].
+-->
+{% block title %}Borrow Requests | IoT Lab Inventory{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Admin review</p>
+      <h1>Borrow requests</h1>
+      <p class="page-subtitle">Approve or reject requests after checking item availability and student need.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Requester</th>
+            <th>Item</th>
+            <th>Dates</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th class="table-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for request_item in requests %}
+            <tr>
+              <td>{{ request_item.requester_name }}</td>
+              <td>{{ request_item.item_name }}</td>
+              <td>{{ request_item.borrow_date|date:"M d" }} - {{ request_item.expected_return_date|date:"M d, Y" }}</td>
+              <td>{{ request_item.reason|truncatechars:70 }}</td>
+              <td>{% include "components/status_badge.html" with status=request_item.status %}</td>
+              <td class="table-actions">
+                {% if request_item.status == "Pending" %}
+                  <button class="btn btn-primary btn-small" type="button" disabled>Approve</button>
+                  <button class="btn btn-outline btn-small" type="button" disabled>Reject</button>
+                {% else %}
+                  <span class="muted-text">Reviewed</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">
+                <div class="empty-state compact">
+                  <h3>No borrow requests</h3>
+                  <p>Student requests will appear here after submission.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

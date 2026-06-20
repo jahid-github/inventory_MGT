@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+<!--
+  Admin user management page.
+  Backend expected context: users = [{id, full_name, email, student_id, role, active_borrowings}].
+  Backend can wire the manual form and remove buttons to admin-only user create/delete views.
+-->
+{% block title %}Manage Users | IoT and ICT Lab Inventory{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div>
+      <p class="eyebrow">Admin users</p>
+      <h1>Manage users</h1>
+      <p class="page-subtitle">Add users manually, review access, and remove accounts that no longer need the inventory system.</p>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="manual-user-title">
+    <div class="panel-header">
+      <div>
+        <h2 id="manual-user-title">Manual user access</h2>
+        <p>Create accounts for students, teachers, or project members who do not register themselves.</p>
+      </div>
+    </div>
+
+    <form class="form-stack" id="manual-user-form" method="post" action="" data-loading-form>
+      {% csrf_token %}
+      <div class="form-grid">
+        <label class="form-field" for="manual_full_name">
+          <span>Full name</span>
+          <input id="manual_full_name" name="full_name" type="text" autocomplete="name" placeholder="User full name">
+        </label>
+
+        <label class="form-field" for="manual_email">
+          <span>Email</span>
+          <input id="manual_email" name="email" type="email" autocomplete="email" placeholder="user@hamk.fi">
+        </label>
+
+        <label class="form-field" for="manual_role">
+          <span>Role</span>
+          <select id="manual_role" name="role">
+            <option value="Student">Student</option>
+            <option value="Teacher">Teacher</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </label>
+
+        <label class="form-field span-2" for="manual_note">
+          <span>Admin note</span>
+          <textarea id="manual_note" name="note" rows="3" placeholder="Reason for manual account creation"></textarea>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit" name="action" value="create_user">Add user manually</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Current users</h2>
+        <p>Remove manually created or inactive accounts when access is no longer required.</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Student ID</th>
+            <th>Role</th>
+            <th>Active borrowings</th>
+            <th class="table-actions">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for account in users %}
+            <tr>
+              <td>{{ account.full_name }}</td>
+              <td>{{ account.email }}</td>
+              <td>{{ account.student_id|default:"-" }}</td>
+              <td><span class="role-badge role-{{ account.role|lower }}">{{ account.role }}</span></td>
+              <td>{{ account.active_borrowings|default:"0" }}</td>
+              <td class="table-actions">
+                <form class="table-action-form" method="post" action="">
+                  {% csrf_token %}
+                  <input type="hidden" name="user_id" value="{{ account.id }}">
+                  <button class="btn btn-outline btn-small" type="submit" name="action" value="view_activity">View activity</button>
+                  <button class="btn btn-danger btn-small" type="submit" name="action" value="remove_user">Remove</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">
+                <div class="empty-state compact">
+                  <h3>No users loaded</h3>
+                  <p>Use the manual user form above to add accounts when users cannot create their own profile.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

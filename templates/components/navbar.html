@@ -1,0 +1,74 @@
+{% load static %}
+<!--
+  Logged-in top navigation.
+  Backend expected context: request.user, unread_notifications_count, and optional global_search_query.
+-->
+<header class="topbar">
+  {% with current_url=request.resolver_match.url_name %}
+  <div class="topbar-left">
+    <button class="icon-button mobile-only" type="button" data-sidebar-toggle aria-label="Open navigation">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+
+    <a class="topbar-brand" href="{% if current_url == 'admin_dashboard' or current_url == 'item_manage' or current_url == 'item_create' or current_url == 'item_edit' or current_url == 'borrow_requests' or current_url == 'user_manage' or current_url == 'reports' %}{% url 'admin_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}">
+      <img class="topbar-brand-logo" src="{% static 'images/hamk_logo.png' %}" alt="HAMK">
+      <span class="brand-copy">
+        <strong>IoT and ICT Lab Inventory</strong>
+        <small>University lab assets</small>
+      </span>
+    </a>
+  </div>
+
+  <form class="topbar-search" action="{% url 'inventory_list' %}" method="get" role="search">
+    <label class="visually-hidden" for="global-search">Search inventory</label>
+    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg>
+    <input id="global-search" name="q" type="search" value="{{ global_search_query|default:'' }}" placeholder="Search items">
+  </form>
+
+  <div class="topbar-actions">
+    <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle dark mode" aria-pressed="false">
+      <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V2m0 20v-2m8-8h2M2 12h2m14.95 6.95 1.42 1.42M3.63 3.63l1.42 1.42m13.9-1.42-1.42 1.42M3.63 20.37l1.42-1.42M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+      <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5Z"/></svg>
+    </button>
+
+    <button class="icon-button notification-button" type="button" aria-label="Notifications">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      {% if unread_notifications_count %}
+        <span class="notification-dot">{{ unread_notifications_count }}</span>
+      {% endif %}
+    </button>
+
+    <div class="profile-menu" data-dropdown>
+      <button class="profile-trigger" type="button" data-dropdown-toggle aria-expanded="false">
+        {% if current_url == 'admin_dashboard' or current_url == 'item_manage' or current_url == 'item_create' or current_url == 'item_edit' or current_url == 'borrow_requests' or current_url == 'user_manage' or current_url == 'reports' %}
+          <span class="avatar">A</span>
+        {% else %}
+          <span class="avatar">{{ request.user.first_name|first|default:"U" }}</span>
+        {% endif %}
+        <span class="profile-name">
+          {% if current_url == 'admin_dashboard' or current_url == 'item_manage' or current_url == 'item_create' or current_url == 'item_edit' or current_url == 'borrow_requests' or current_url == 'user_manage' or current_url == 'reports' %}
+            Admin
+          {% elif request.user.get_full_name %}
+            {{ request.user.get_full_name }}
+          {% else %}
+            {{ request.user.username|default:"Student" }}
+          {% endif %}
+        </span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <div class="dropdown-panel" data-dropdown-panel>
+        {% if current_url == 'admin_dashboard' or current_url == 'item_manage' or current_url == 'item_create' or current_url == 'item_edit' or current_url == 'borrow_requests' or current_url == 'user_manage' or current_url == 'reports' %}
+          <a href="{% url 'admin_dashboard' %}">Admin dashboard</a>
+          <a href="{% url 'item_manage' %}">Manage items</a>
+        {% else %}
+          <a href="{% url 'profile' %}">Profile</a>
+          <a href="{% url 'reservation_list' %}">Reservations</a>
+        {% endif %}
+        <!-- Backend note: replace this login link with a logout URL when authentication routes are wired. -->
+        <a href="{% url 'login' %}">Sign out</a>
+      </div>
+    </div>
+  </div>
+  {% endwith %}
+</header>

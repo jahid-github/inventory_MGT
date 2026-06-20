@@ -1,0 +1,72 @@
+{% load static %}
+<!--
+  Sidebar navigation for authenticated users.
+  Backend expected context: request.user.
+-->
+<aside class="sidebar" id="app-sidebar" aria-label="Primary navigation">
+  {% with current_url=request.resolver_match.url_name %}
+  <div class="sidebar-header">
+    <a class="sidebar-brand" href="{% if current_url == 'admin_dashboard' or current_url == 'item_manage' or current_url == 'item_create' or current_url == 'item_edit' or current_url == 'borrow_requests' or current_url == 'user_manage' or current_url == 'reports' %}{% url 'admin_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}">
+      <img class="sidebar-brand-logo" src="{% static 'images/hamk_logo.png' %}" alt="HAMK">
+      <span>
+        <strong>IoT and ICT Lab</strong>
+        <small>Inventory</small>
+      </span>
+    </a>
+  </div>
+
+  <nav class="sidebar-nav">
+    {% if current_url == 'admin_dashboard' or current_url == 'item_manage' or current_url == 'item_create' or current_url == 'item_edit' or current_url == 'borrow_requests' or current_url == 'user_manage' or current_url == 'reports' %}
+      <p class="nav-section-title">Admin menu</p>
+      <a class="nav-link {% if current_url == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+        <span class="nav-icon">A</span>
+        <span>Admin Dashboard</span>
+      </a>
+      <a class="nav-link {% if current_url == 'item_manage' or current_url == 'item_create' or current_url == 'item_edit' %}active{% endif %}" href="{% url 'item_manage' %}">
+        <span class="nav-icon">I</span>
+        <span>Manage Items</span>
+      </a>
+      <a class="nav-link {% if current_url == 'borrow_requests' %}active{% endif %}" href="{% url 'borrow_requests' %}">
+        <span class="nav-icon">B</span>
+        <span>Borrow Requests</span>
+      </a>
+      <a class="nav-link {% if current_url == 'user_manage' %}active{% endif %}" href="{% url 'user_manage' %}">
+        <span class="nav-icon">U</span>
+        <span>Users</span>
+      </a>
+      <a class="nav-link {% if current_url == 'reports' %}active{% endif %}" href="{% url 'reports' %}">
+        <span class="nav-icon">R</span>
+        <span>Reports</span>
+      </a>
+    {% else %}
+      <p class="nav-section-title">Menu</p>
+      <a class="nav-link {% if current_url == 'user_dashboard' %}active{% endif %}" href="{% url 'user_dashboard' %}">
+        <span class="nav-icon">D</span>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-link {% if current_url == 'inventory_list' %}active{% endif %}" href="{% url 'inventory_list' %}">
+        <span class="nav-icon">I</span>
+        <span>Inventory</span>
+      </a>
+      <a class="nav-link {% if current_url == 'borrow_request' %}active{% endif %}" href="{% url 'borrow_request' %}">
+        <span class="nav-icon">B</span>
+        <span>Request Borrow</span>
+      </a>
+      <a class="nav-link {% if current_url == 'reservation_list' %}active{% endif %}" href="{% url 'reservation_list' %}">
+        <span class="nav-icon">R</span>
+        <span>Reservations</span>
+      </a>
+      <a class="nav-link {% if current_url == 'my_borrowings' %}active{% endif %}" href="{% url 'my_borrowings' %}">
+        <span class="nav-icon">M</span>
+        <span>My Borrowings</span>
+      </a>
+      <a class="nav-link {% if current_url == 'lost_report' %}active{% endif %}" href="{% url 'lost_report' %}">
+        <span class="nav-icon">L</span>
+        <span>Report Lost</span>
+      </a>
+    {% endif %}
+  </nav>
+  {% endwith %}
+</aside>
+
+<button class="sidebar-backdrop" type="button" data-sidebar-close aria-label="Close navigation"></button>
