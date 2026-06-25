@@ -812,12 +812,20 @@ html[data-theme="dark"] .theme-icon-sun {
 
 .app-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
   padding: 18px 28px;
   border-top: 1px solid var(--color-border);
   color: var(--color-muted);
   font-size: 13px;
+  text-align: center;
+}
+
+.app-footer span {
+  display: block;
+  width: min(100%, 1280px);
+  margin: 0 auto;
+  text-align: center;
 }
 
 @media (max-width: 1100px) {

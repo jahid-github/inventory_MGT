@@ -3,7 +3,8 @@
 <!--
   Admin user management page.
   Backend expected context: users = [{id, full_name, email, student_id, role, active_borrowings}].
-  Backend can wire the manual form and remove buttons to admin-only user create/delete views.
+  Backend wired to Django's built-in auth_user table; later profile fields can be joined here.
+  Admin note is intentionally frontend-only until the backend adds an audit/profile model.
 -->
 {% block title %}Manage Users | IoT and ICT Lab Inventory{% endblock %}
 
@@ -34,7 +35,7 @@
 
         <label class="form-field" for="manual_email">
           <span>Email</span>
-          <input id="manual_email" name="email" type="email" autocomplete="email" placeholder="user@hamk.fi">
+          <input id="manual_email" name="email" type="email" autocomplete="email" placeholder="user@student.hamk.fi">
         </label>
 
         <label class="form-field" for="manual_role">

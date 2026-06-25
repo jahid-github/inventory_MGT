@@ -30,13 +30,13 @@
             {% if user.get_full_name %}
               {{ user.get_full_name }}
             {% else %}
-              {{ user.username|default:"Student User" }}
+              {{ user.username|default:"HAMK University" }}
             {% endif %}
           </strong>
         </div>
         <div>
           <span>Email</span>
-          <strong>{{ user.email|default:"student@university.edu" }}</strong>
+          <strong>{{ user.email|default:"user@student.hamk.fi" }}</strong>
         </div>
       </div>
     </article>

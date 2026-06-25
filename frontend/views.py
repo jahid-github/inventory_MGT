@@ -6,7 +6,18 @@ The backend team can replace the placeholder context with models, forms, and
 permission checks later without changing the template names or URL names.
 """
 
-from django.shortcuts import render
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.db import IntegrityError, transaction
+from django.shortcuts import redirect, render
+
+from .user_helpers import (
+    apply_role,
+    build_dashboard_user,
+    normalize_role,
+    split_full_name,
+    username_from_email,
+)
 
 
 def login_page(request):
@@ -94,8 +105,65 @@ def borrow_requests(request):
 
 
 def user_manage(request):
-    """Render the admin user management page."""
-    return render(request, "admin_ui/user_manage.html")
+    """Render and process the admin user management page.
+
+    Backend note:
+    This uses Django's built-in auth_user table in the existing SQLite database.
+    If the backend team later adds a profile/student model, keep this view and
+    frontend/user_helpers.py as the integration points for dashboard user create.
+    """
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "create_user":
+            full_name = request.POST.get("full_name", "").strip()
+            email = request.POST.get("email", "").strip().lower()
+            role = normalize_role(request.POST.get("role", ""))
+
+            if not full_name or not email:
+                messages.error(request, "Full name and email are required to add a user.")
+                return redirect("user_manage")
+
+            if (
+                User.objects.filter(email__iexact=email).exists()
+                or User.objects.filter(username__iexact=username_from_email(email)).exists()
+            ):
+                messages.error(request, "A user with this email already exists.")
+                return redirect("user_manage")
+
+            first_name, last_name = split_full_name(full_name)
+
+            try:
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username=username_from_email(email),
+                        email=email,
+                        first_name=first_name,
+                        last_name=last_name,
+                    )
+                    user.set_unusable_password()
+                    apply_role(user, role)
+                messages.success(request, f"{full_name} was added as {role}.")
+            except IntegrityError:
+                messages.error(request, "A user with this email already exists.")
+
+            return redirect("user_manage")
+
+        if action == "remove_user":
+            user_id = request.POST.get("user_id")
+            deleted_count, _ = User.objects.filter(id=user_id).delete()
+            if deleted_count:
+                messages.success(request, "User account removed.")
+            else:
+                messages.error(request, "User account could not be found.")
+            return redirect("user_manage")
+
+        if action == "view_activity":
+            messages.info(request, "Borrowing activity can be connected here when backend borrowing models are ready.")
+            return redirect("user_manage")
+
+    users = [build_dashboard_user(user) for user in User.objects.order_by("first_name", "last_name", "username")]
+    return render(request, "admin_ui/user_manage.html", {"users": users})
 
 
 def reports(request):
