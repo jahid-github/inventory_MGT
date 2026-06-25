@@ -1,3 +1,6 @@
+Instructed by Ernesto and Jari
+
+
 What kinds of tasks do you think the inventory system could be useful helping with? * The inventory system should help with the efficient management, tracking, and utilization of laboratory equipment, components, and educational resources.
 Possible tasks may include:
 Tracking the quantity and availability of electronic components, sensors, actuators, tools, and devices, etc
