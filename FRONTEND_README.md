@@ -47,9 +47,9 @@ This folder contains a Django-template frontend scaffold for the IoT Lab Invento
 - `static/js/inventory_filter.js`: Frontend-only filtering for elements with `data-inventory-card`.
 - `static/js/qr_scanner.js`: Placeholder QR scanner behavior. Add `html5-qrcode` initialization here later.
 
-## Expected Backend Context
+## Backend Context
 
-Use these context names when wiring Django views:
+these context names when wiring Django views:
 
 - `stats`: `{total_items, available_items, borrowed_items, pending_requests}`
 - `admin_stats`: `{total_assets, available_assets, open_requests, overdue_items}`
@@ -111,10 +111,3 @@ The forgot password page currently posts to the current URL and the login link u
   };
 </script>
 ```
-
-## Notes For The Team
-
-- The scaffold uses custom CSS rather than a framework dependency, with Bootstrap/Tailwind-like component naming.
-- Empty states are built into tables and inventory grids with `{% empty %}`.
-- Forms use normal HTML names so Django forms can replace them gradually.
-- Admin sidebar links are visible by default for frontend review. Hide them later based on role or permission checks.
